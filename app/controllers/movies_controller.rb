@@ -10,10 +10,12 @@ class MoviesController < ApplicationController
     # figure out all the sessions business first
     redirect_parameters = {}
 
-    if params[:commit] || params[:ratings]
-      session[:ratings] = params[:ratings] 
-    elsif session[:ratings]
-      redirect = true
+    if params[:commit]
+      if params[:ratings]
+        session[:ratings] = params[:ratings]
+      elsif session[:ratings]
+        redirect = true
+      end
     end
     redirect_parameters[:ratings] = session[:ratings]
 
@@ -31,9 +33,9 @@ class MoviesController < ApplicationController
     @movies = []
 
     @ratings = {}
-    if params[:ratings] 
+    if params[:ratings]
       @ratings = params[:ratings]
-    else 
+    else
       @all_ratings.each do |rating|
         @ratings[rating] = 1
       end
