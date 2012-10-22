@@ -31,9 +31,16 @@ class MoviesController < ApplicationController
     @movies = []
 
     @ratings = {}
-    @ratings = params[:ratings] if params[:ratings]
+    if params[:ratings] 
+      @ratings = params[:ratings]
+    else 
+      @all_ratings.each do |rating|
+        @ratings[rating] = 1
+      end
+    end
 
-    @movies = Movie.where(:rating => params[:ratings].keys) if params[:ratings]
+    # @movies = Movie.where(:rating => params[:ratings].keys) if params[:ratings]
+    @movies = Movie.where(:rating => @ratings.keys)
     if @movies.any? && params[:sort]
       @movies = @movies.order(params[:sort])
       @title_highlight_class = "hilite" if params[:sort] == "title"
