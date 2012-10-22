@@ -7,10 +7,34 @@ class MoviesController < ApplicationController
   end
 
   def index
-    @all_ratings = Movie.ratings
-    @movies =[]
-    @movies = Movie.where(:rating => params[:ratings].keys) if params[:ratings]
+    # figure out all the sessions business first
+    redirect_parameters = {}
+
+    if params[:commit] || params[:ratings]
+      session[:ratings] = params[:ratings] 
+    elsif session[:ratings]
+      redirect = true
+    end
+    redirect_parameters[:ratings] = session[:ratings]
+
     if params[:sort]
+      session[:sort] = params[:sort]
+    elsif session[:sort]
+      redirect = true
+    end
+    redirect_parameters[:sort] = session[:sort]
+
+    redirect_to movies_path :ratings => session[:ratings], :sort => session[:sort] if redirect
+
+    #this logic is now unchanged
+    @all_ratings = Movie.ratings
+    @movies = []
+
+    @ratings = {}
+    @ratings = params[:ratings] if params[:ratings]
+
+    @movies = Movie.where(:rating => params[:ratings].keys) if params[:ratings]
+    if @movies.any? && params[:sort]
       @movies = @movies.order(params[:sort])
       @title_highlight_class = "hilite" if params[:sort] == "title"
       @release_date_highlight_class = "hilite" if params[:sort] == "release_date"
